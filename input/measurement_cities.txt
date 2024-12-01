@@ -1,4 +1,3 @@
-[  
 "Pas de la Casa",
 "Ordino",
 "les Escaldes",
@@ -1241,7 +1240,6 @@
 "Akhalk’alak’i",
 "Stantsiya Novyy Afon",
 "Akhalgori",
- 
 "Aghaiani",
 "Agara",
 "Adigeni",
@@ -8949,7 +8947,6 @@
 "Chañe",
 "Chalamera",
 "Cevico Navero",
-  
 "Seltz",
 "Selongey",
 "Seloncourt",
@@ -10205,5 +10202,4 @@
 "Embu",
 "Emali",
 "El Wak",
-"Eldoret"
-]
+"Eldoret",
