@@ -37,3 +37,4 @@ db.json
 measurement.txt
 db/
 build/
+.cache/
