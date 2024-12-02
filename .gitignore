@@ -31,3 +31,4 @@
 *.out
 *.app
 db.json
+.DS_Store
