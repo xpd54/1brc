@@ -35,3 +35,5 @@ db.json
 
 #ignore input file as it's gonna hold 10^9 row
 measurement.txt
+db/
+build/
