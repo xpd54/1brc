@@ -10,6 +10,17 @@
 
 #include "../Station.h"
 
+/*
+ *1. Baseline
+ */
+
+/*
+ * Total run time
+ * Number Of station:- 9671
+ * Time Taken in millisecond :- 998237ms
+ * Time Taken in second :- 998s
+ */
+
 std::map<std::string, Station> create_map_with_file(std::ifstream &input_file_stream) {
   std::map<std::string, Station> station_map;
   std::string station_name;

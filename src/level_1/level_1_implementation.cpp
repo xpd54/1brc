@@ -13,7 +13,13 @@
 /* List of improvement from level_0
  * 1. Avoid making copy of station_map when returing from create_map_with_file and in print_out_output.
  * 2. Use map where emplace would be faster as no need to sort alphabitally (lexicographically)
- * 3.
+ */
+
+/*
+ * Total run time
+ * Number Of station:- 9671
+ * Time Taken in millisecond :- 418985ms
+ * Time Taken in second :- 418s
  */
 
 void create_map_with_file(std::ifstream &input_file_stream, std::unordered_map<std::string, Station> &station_map) {
