@@ -10,8 +10,7 @@
 
 #include "../Station.h"
 
-std::map<std::string, Station> create_map_with_file(
-    std::ifstream &input_file_stream) {
+std::map<std::string, Station> create_map_with_file(std::ifstream &input_file_stream) {
   std::map<std::string, Station> station_map;
   std::string station_name;
   std::string station_temp_string;
@@ -19,13 +18,11 @@ std::map<std::string, Station> create_map_with_file(
          std::getline(input_file_stream, station_temp_string, '\n')) {
     float station_temp = std::stof(station_temp_string);
     if (!station_map.count(station_name)) {
-      station_map.emplace(station_name,
-                          Station{station_temp, 1, station_temp, station_temp});
+      station_map.emplace(station_name, Station{station_temp, 1, station_temp, station_temp});
       continue;
     }
 
-    std::map<std::string, Station>::iterator it =
-        station_map.find(station_name);
+    std::map<std::string, Station>::iterator it = station_map.find(station_name);
     it->second.sum_of_temp += station_temp;
     it->second.number_of_record++;
     it->second.maximum_temp = std::max(it->second.maximum_temp, station_temp);
@@ -42,19 +39,15 @@ std::map<std::string, Station> create_map_with_file(
  * ...}
  * <min>/<avrage>/<max>
  */
-void print_out_output(std::ostream &output_stream,
-                      std::map<std::string, Station> station_map) {
+void print_out_output(std::ostream &output_stream, std::map<std::string, Station> station_map) {
   std::string first_delimiter = "";
-  output_stream << std::setiosflags(output_stream.fixed |
-                                    output_stream.showpoint)
-                << std::setprecision(1);
+  output_stream << std::setiosflags(output_stream.fixed | output_stream.showpoint) << std::setprecision(1);
   output_stream << '{';
   for (auto value : station_map) {
     output_stream << std::exchange(first_delimiter, ", ");
     output_stream << value.first << '=';
     output_stream << value.second.minimum_temp << '/';
-    output_stream << (value.second.sum_of_temp / value.second.number_of_record)
-                  << '/';
+    output_stream << (value.second.sum_of_temp / value.second.number_of_record) << '/';
     output_stream << value.second.maximum_temp;
   }
   output_stream << '}';
@@ -65,27 +58,21 @@ void print_out_output(std::ostream &output_stream,
  * input/main.cpp which takes 4-5 min*/
 
 int main(int argc, char **argv) {
+
   auto start_time = std::chrono::high_resolution_clock::now();
   std::ifstream measurement(argv[1]);
   if (!measurement) {
     std::cerr << "Error:- Can not read input file" << '\n';
   }
-  std::map<std::string, Station> measurement_map =
-      create_map_with_file(measurement);
+  std::map<std::string, Station> measurement_map = create_map_with_file(measurement);
   print_out_output(std::cout, measurement_map);
   std::cout << '\n' << "Number Of station:- " << measurement_map.size() << '\n';
   auto end_time = std::chrono::high_resolution_clock::now();
 
   std::cout << "Time Taken in millisecond :- "
-            << std::chrono::duration_cast<std::chrono::milliseconds>(end_time -
-                                                                     start_time)
-                   .count()
-            << "ms" << '\n';
+            << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() << "ms" << '\n';
 
   std::cout << "Time Taken in second :- "
-            << std::chrono::duration_cast<std::chrono::seconds>(end_time -
-                                                                start_time)
-                   .count()
-            << "s" << '\n';
+            << std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time).count() << "s" << '\n';
   return 0;
 }

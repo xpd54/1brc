@@ -47,8 +47,7 @@ int main(int argc, char **argv) {
 
   std::ofstream output_file(INPUT_LIST);
   for (int i = 0; i < number_of_entry; ++i) {
-    output_file << city_list[integral_dis(generator)] << ';'
-                << std::round(real_dist(generator) * 10) / 10 << '\n';
+    output_file << city_list[integral_dis(generator)] << ';' << std::round(real_dist(generator) * 10) / 10 << '\n';
   }
   output_file.close();
   return 0;
