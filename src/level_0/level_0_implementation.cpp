@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <chrono>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -59,8 +60,13 @@ void print_out_output(std::ostream &output_stream,
   output_stream << '}';
 }
 
-int main() {
-  std::ifstream measurement("../input/measurement_100000.txt");
+/*Take input file name as an argument to test that, Use Sample
+ * (input/measurement_100000.txt). Original 1B row can be generated with
+ * input/main.cpp which takes 4-5 min*/
+
+int main(int argc, char **argv) {
+  auto start_time = std::chrono::high_resolution_clock::now();
+  std::ifstream measurement(argv[1]);
   if (!measurement) {
     std::cerr << "Error:- Can not read input file" << '\n';
   }
@@ -68,5 +74,18 @@ int main() {
       create_map_with_file(measurement);
   print_out_output(std::cout, measurement_map);
   std::cout << '\n' << "Number Of station:- " << measurement_map.size() << '\n';
+  auto end_time = std::chrono::high_resolution_clock::now();
+
+  std::cout << "Time Taken in millisecond :- "
+            << std::chrono::duration_cast<std::chrono::milliseconds>(end_time -
+                                                                     start_time)
+                   .count()
+            << "ms" << '\n';
+
+  std::cout << "Time Taken in second :- "
+            << std::chrono::duration_cast<std::chrono::seconds>(end_time -
+                                                                start_time)
+                   .count()
+            << "s" << '\n';
   return 0;
 }
