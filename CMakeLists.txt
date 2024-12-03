@@ -11,3 +11,4 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-O3;-DNDEBUG;-march=native;-fpic;-ftree-vectorize>")
 
 add_subdirectory(src/level_0)
+add_subdirectory(src/level_1)
