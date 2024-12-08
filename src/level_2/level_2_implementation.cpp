@@ -16,6 +16,14 @@
  * 1. We will use mmap to read the file in memory rather than reading from fstream
  * 2. As file is already mapped in memory we will use string_view to read the value into our station map
  */
+
+/*
+ * Total run time
+ * Number Of station:- 9671
+ * Time Taken in millisecond :- 360389ms
+ * Time Taken in second :- 360s
+ */
+
 using custom_unorder_map = std::unordered_map<std::string_view, Station, decltype(hash), decltype(equal)>;
 void create_map_with_file(std::string_view &input_file_view, custom_unorder_map &station_map) {
   std::string_view station_name;
