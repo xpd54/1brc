@@ -15,6 +15,8 @@
 /* List of improvement from level_1
  * 1. We will use mmap to read the file in memory rather than reading from fstream
  * 2. As file is already mapped in memory we will use string_view to read the value into our station map
+ * 3. Have own hash function to support map
+ * 4. Avoid using STOF which is slow. (benchmark it)
  */
 
 /*
@@ -24,6 +26,11 @@
  * Time Taken in second :- 260s
  */
 
+/*Treat float string as int. as std::stof is slow downs alot.
+ * benchmark
+ * BM_STOI                 85.4 ns         66.2 ns     11137275
+ * BM_lambda               17.6 ns         17.5 ns     38171685  (float parsing)
+ */
 inline int64_t parse_float_string(const std::string_view &station_temp) {
   bool is_negative = station_temp[0] == '-';
   size_t it = 0;
