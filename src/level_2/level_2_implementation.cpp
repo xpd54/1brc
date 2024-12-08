@@ -1,5 +1,6 @@
 #include "../Station.h"
 #include "MemoryMappedFile.h"
+#include "utility.h"
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
@@ -15,9 +16,9 @@
  * 1. We will use mmap to read the file in memory rather than reading from fstream
  * 2. As file is already mapped in memory we will use string_view to read the value into our station map
  */
-
-void create_map_with_file(std::string_view &input_file_view, std::unordered_map<std::string, Station> &station_map) {
-  std::string station_name;
+using custom_unorder_map = std::unordered_map<std::string_view, Station, decltype(hash), decltype(equal)>;
+void create_map_with_file(std::string_view &input_file_view, custom_unorder_map &station_map) {
+  std::string_view station_name;
   std::string station_temp_string;
   uint64_t size = input_file_view.size();
   uint64_t start = 0;
@@ -37,7 +38,7 @@ void create_map_with_file(std::string_view &input_file_view, std::unordered_map<
       continue;
     }
 
-    std::unordered_map<std::string, Station>::iterator it = station_map.find(station_name);
+    auto it = station_map.find(station_name);
     it->second.sum_of_temp += station_temp;
     it->second.number_of_record++;
     it->second.maximum_temp = std::max(it->second.maximum_temp, station_temp);
@@ -53,9 +54,9 @@ void create_map_with_file(std::string_view &input_file_view, std::unordered_map<
  * ...}
  * <min>/<avrage>/<max>
  */
-void print_out_output(std::ostream &output_stream, std::unordered_map<std::string, Station> &station_map) {
+void print_out_output(std::ostream &output_stream, custom_unorder_map &station_map) {
   /* Station_map will have roughly 10000 entry so sorting and finding shouldn't implact performance*/
-  std::vector<std::string> station_names;
+  std::vector<std::string_view> station_names;
   station_names.reserve(station_map.size());
 
   for (auto &[name, station] : station_map)
@@ -83,9 +84,11 @@ void print_out_output(std::ostream &output_stream, std::unordered_map<std::strin
 int main(int argc, char **argv) {
 
   auto start_time = std::chrono::high_resolution_clock::now();
-  std::unordered_map<std::string, Station> measurement_map;
+
   MemoryMappedFile file(argv[1]);
   std::string_view measurement_view = file.fileArray();
+
+  custom_unorder_map measurement_map(100000, hash, equal);
   create_map_with_file(measurement_view, measurement_map);
   print_out_output(std::cout, measurement_map);
   std::cout << '\n' << "Number Of station:- " << measurement_map.size() << '\n';
