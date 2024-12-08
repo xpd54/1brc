@@ -12,3 +12,4 @@ add_compile_options("-O3;-DNDEBUG;-march=native;-fomit-frame-pointer;")
 
 add_subdirectory(src/level_0)
 add_subdirectory(src/level_1)
+add_subdirectory(src/level_2)

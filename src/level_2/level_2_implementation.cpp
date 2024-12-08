@@ -1,26 +1,36 @@
+#include "../Station.h"
+#include "MemoryMappedFile.h"
 #include <algorithm>
 #include <chrono>
-#include <fstream>
+#include <cstdint>
 #include <iomanip>
 #include <iostream>
 #include <ostream>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <utility>
-
-#include "../Station.h"
 
 /* List of improvement from level_1
  * 1. We will use mmap to read the file in memory rather than reading from fstream
  * 2. As file is already mapped in memory we will use string_view to read the value into our station map
  */
 
-void create_map_with_file(std::ifstream &input_file_stream, std::unordered_map<std::string, Station> &station_map) {
-
+void create_map_with_file(std::string_view &input_file_view, std::unordered_map<std::string, Station> &station_map) {
   std::string station_name;
   std::string station_temp_string;
-  while (std::getline(input_file_stream, station_name, ';') &&
-         std::getline(input_file_stream, station_temp_string, '\n')) {
+  uint64_t size = input_file_view.size();
+  uint64_t start = 0;
+  uint64_t found = input_file_view.size();
+  while (start < size) {
+    found = input_file_view.find(';', start);
+    station_name = input_file_view.substr(start, found - start);
+    start = found + 1;
+
+    found = input_file_view.find('\n', start);
+    station_temp_string = input_file_view.substr(start, found - start);
+    start = found + 1;
+
     float station_temp = std::stof(station_temp_string);
     if (!station_map.count(station_name)) {
       station_map.emplace(station_name, Station{station_temp, 1, station_temp, station_temp});
@@ -74,11 +84,9 @@ int main(int argc, char **argv) {
 
   auto start_time = std::chrono::high_resolution_clock::now();
   std::unordered_map<std::string, Station> measurement_map;
-  std::ifstream measurement(argv[1]);
-  if (!measurement) {
-    std::cerr << "Error:- Can not read input file" << '\n';
-  }
-  create_map_with_file(measurement, measurement_map);
+  MemoryMappedFile file(argv[1]);
+  std::string_view measurement_view = file.fileArray();
+  create_map_with_file(measurement_view, measurement_map);
   print_out_output(std::cout, measurement_map);
   std::cout << '\n' << "Number Of station:- " << measurement_map.size() << '\n';
   auto end_time = std::chrono::high_resolution_clock::now();
