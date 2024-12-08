@@ -20,14 +20,31 @@
 /*
  * Total run time
  * Number Of station:- 9671
- * Time Taken in millisecond :- 360389ms
- * Time Taken in second :- 360s
+ * Time Taken in millisecond :- 260352ms
+ * Time Taken in second :- 260s
  */
 
-using custom_unorder_map = std::unordered_map<std::string_view, Station, decltype(hash), decltype(equal)>;
-void create_map_with_file(std::string_view &input_file_view, custom_unorder_map &station_map) {
+inline int64_t parse_float_string(const std::string_view &station_temp) {
+  bool is_negative = station_temp[0] == '-';
+  size_t it = 0;
+  int result = 0;
+  if (is_negative) {
+    it = 1;
+  }
+  size_t size = station_temp.size();
+  while (it < size) {
+    if (station_temp[it] != '.')
+      result = result * 10 + (station_temp[it] - '0');
+    ++it;
+  }
+  return is_negative ? -result : result;
+}
+
+using custom_unorder_map = std::unordered_map<std::string_view, Station_INT, decltype(hash), decltype(equal)>;
+
+void create_map_with_file(const std::string_view &input_file_view, custom_unorder_map &station_map) {
   std::string_view station_name;
-  std::string station_temp_string;
+  std::string_view station_temp_string;
   uint64_t size = input_file_view.size();
   uint64_t start = 0;
   uint64_t found = input_file_view.size();
@@ -40,9 +57,10 @@ void create_map_with_file(std::string_view &input_file_view, custom_unorder_map 
     station_temp_string = input_file_view.substr(start, found - start);
     start = found + 1;
 
-    float station_temp = std::stof(station_temp_string);
+    int64_t station_temp = parse_float_string(station_temp_string);
+
     if (!station_map.count(station_name)) {
-      station_map.emplace(station_name, Station{station_temp, 1, station_temp, station_temp});
+      station_map.emplace(station_name, Station_INT{station_temp, 1, station_temp, station_temp});
       continue;
     }
 
@@ -75,12 +93,12 @@ void print_out_output(std::ostream &output_stream, custom_unorder_map &station_m
   output_stream << std::setiosflags(output_stream.fixed | output_stream.showpoint) << std::setprecision(1);
   output_stream << '{';
   for (auto &name : station_names) {
-    Station value = station_map[name];
+    Station_INT value = station_map[name];
     output_stream << std::exchange(first_delimiter, ", ");
     output_stream << name << '=';
-    output_stream << value.minimum_temp << '/';
-    output_stream << (value.sum_of_temp / value.number_of_record) << '/';
-    output_stream << value.maximum_temp;
+    output_stream << (value.minimum_temp / 10.0) << '/';
+    output_stream << (value.sum_of_temp / (value.number_of_record * 10.0)) << '/';
+    output_stream << (value.maximum_temp / 10.0);
   }
   output_stream << '}';
 }
