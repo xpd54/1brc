@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <ostream>
@@ -47,7 +48,7 @@ inline int64_t parse_float_string(const std::string_view &station_temp) {
   return is_negative ? -result : result;
 }
 
-using custom_unorder_map = std::unordered_map<std::string_view, Station_INT, decltype(hash), decltype(equal)>;
+using custom_unorder_map = std::unordered_map<std::string_view, Station_INT, decltype(hash), std::equal_to<>>;
 
 void create_map_with_file(const std::string_view &input_file_view, custom_unorder_map &station_map) {
   std::string_view station_name;
@@ -121,7 +122,7 @@ int main(int argc, char **argv) {
   MemoryMappedFile file(argv[1]);
   std::string_view measurement_view = file.fileArray();
 
-  custom_unorder_map measurement_map(100000, hash, equal);
+  custom_unorder_map measurement_map(100000, hash, std::equal_to());
   create_map_with_file(measurement_view, measurement_map);
   print_out_output(std::cout, measurement_map);
   std::cout << '\n' << "Number Of station:- " << measurement_map.size() << '\n';
