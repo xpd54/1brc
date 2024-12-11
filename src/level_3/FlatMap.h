@@ -7,6 +7,7 @@
 #include <string_view>
 #include <vector>
 class FlatMap {
+public:
   FlatMap();
   std::pair<Station_INT *, bool> emplace(std::string_view key, const Station_INT &value);
   Station_INT &operator[](const std::string_view &key);
