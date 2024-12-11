@@ -4,6 +4,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <string_view>
 #include <vector>
 class FlatMap {
   FlatMap();
@@ -16,11 +17,12 @@ class FlatMap {
 
 private:
   inline uint16_t get_hash(const std::string_view &key) const {
-    uint16_t index = std::hash<std::string_view>(key);
+    uint16_t index = hash_instance(key);
     return index;
   }
 
   std::array<std::string_view, UINT16_MAX + 1> _keys;
   std::array<Station_INT, UINT16_MAX + 1> _values;
   std::vector<uint16_t> filled_indexes;
+  std::hash<std::string_view> hash_instance;
 };

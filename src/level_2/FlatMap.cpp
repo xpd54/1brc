@@ -2,7 +2,7 @@
 #include "../Station.h"
 #include <cstdint>
 #include <string_view>
-FlatMap::FlatMap() : _keys{}, _values{}, filled_indexes{} {}
+FlatMap::FlatMap() : _keys{}, _values{}, filled_indexes{}, hash_instance{} {}
 
 std::pair<std::string_view *, bool> FlatMap::emplace(std::string_view key, const Station_INT &value) {}
 
