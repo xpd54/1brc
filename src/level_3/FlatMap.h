@@ -4,6 +4,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <iostream>
 #include <string_view>
 #include <vector>
 class FlatMap {
@@ -25,9 +26,19 @@ private:
   inline uint16_t get_hash(const std::string_view &key) const { return hash_instance(key); }
   inline size_t get_index(const std::string_view &key) const {
     uint16_t index = get_hash(key);
+    if (index == 5742) {
+      std::cout << "got it \n";
+    }
+    if (!_keys[index].empty()) {
+      std::cout << "." << _keys[index] << "-";
+    }
     while (!_keys[index].empty()) {
-      if (_keys[index] == key)
+      if (_keys[index] == key) {
         break;
+      } else {
+        std::cout << "------> " << key << " " << get_hash(key) << " <---- " << _keys[index] << " "
+                  << get_hash(_keys[index]) << " " << index << "\n";
+      }
       ++index;
     }
     return index;
