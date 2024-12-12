@@ -45,6 +45,9 @@ inline int64_t parse_float_string(const std::string_view &station_temp) {
       result = result * 10 + (station_temp[it] - '0');
     ++it;
   }
+  auto dot_pos = station_temp.find('.');
+  if (dot_pos == std::string_view::npos)
+    result = result * 10;
   return is_negative ? -result : result;
 }
 
@@ -105,7 +108,7 @@ void print_out_output(std::ostream &output_stream, custom_unorder_map &station_m
     output_stream << std::exchange(first_delimiter, ", ");
     output_stream << name << '=';
     output_stream << (value.minimum_temp / 10.0) << '/';
-    output_stream << (value.sum_of_temp / (value.number_of_record * 10.0)) << '/';
+    output_stream << (value.sum_of_temp / 10.0) / value.number_of_record << '/';
     output_stream << (value.maximum_temp / 10.0);
   }
   output_stream << '}';

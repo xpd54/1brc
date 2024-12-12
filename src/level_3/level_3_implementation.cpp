@@ -46,6 +46,9 @@ inline int64_t parse_float_string(const std::string_view &station_temp) {
       result = result * 10 + (station_temp[it] - '0');
     ++it;
   }
+  auto dot_pos = station_temp.find('.');
+  if (dot_pos == std::string_view::npos)
+    result = result * 10;
   return is_negative ? -result : result;
 }
 
