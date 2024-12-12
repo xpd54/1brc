@@ -38,3 +38,5 @@ measurement.txt
 db/
 build/
 .cache/
+
+.vscode/

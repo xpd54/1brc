@@ -4,7 +4,6 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
 #include <string_view>
 #include <vector>
 class FlatMap {
@@ -18,31 +17,24 @@ public:
   void reserve(size_t size);
 
   inline size_t count(const std::string_view &key) {
-    uint16_t index = get_hash(key);
+    uint16_t index = get_index(key);
     return _keys[index].empty() ? 0 : 1;
   }
 
 private:
   inline uint16_t get_hash(const std::string_view &key) const { return hash_instance(key); }
+
+  /*Use linear probing on collision of hash */
   inline size_t get_index(const std::string_view &key) const {
     uint16_t index = get_hash(key);
-    if (index == 5742) {
-      std::cout << "got it \n";
-    }
-    if (!_keys[index].empty()) {
-      std::cout << "." << _keys[index] << "-";
-    }
     while (!_keys[index].empty()) {
-      if (_keys[index] == key) {
+      if (_keys[index] == key)
         break;
-      } else {
-        std::cout << "------> " << key << " " << get_hash(key) << " <---- " << _keys[index] << " "
-                  << get_hash(_keys[index]) << " " << index << "\n";
-      }
       ++index;
     }
     return index;
   }
+
   std::array<std::string_view, UINT16_MAX + 1> _keys;
   std::array<Station_INT, UINT16_MAX + 1> _values;
   std::vector<uint16_t> filled_indexes;

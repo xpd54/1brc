@@ -12,17 +12,14 @@
 #include <utility>
 
 /* List of improvement from level_1
- * 1. We will use mmap to read the file in memory rather than reading from fstream
- * 2. As file is already mapped in memory we will use string_view to read the value into our station map
- * 3. Have own hash function to support map
- * 4. Avoid using STOF which is slow. (benchmark it)
+ * 1. Will use custom map with std::string_view as key
  */
 
 /*
  * Total run time
  * Number Of station:- 9671
- * Time Taken in millisecond :- 260352ms
- * Time Taken in second :- 260s
+ * Time Taken in millisecond :- 226277ms
+ * Time Taken in second :- 226s
  */
 
 /*Treat float string as int. as std::stof is slow downs alot.
