@@ -18,8 +18,8 @@
 /*
  * Total run time
  * Number Of station:- 9671
- * Time Taken in millisecond :- 209929ms
- * Time Taken in second :- 209s
+ * Time Taken in millisecond :- 197947ms
+ * Time Taken in second :- 197s
  */
 
 /*Treat float string as int. as std::stof is slow downs alot.
@@ -29,6 +29,7 @@
  */
 inline int64_t parse_float_string(const std::string_view &station_temp) {
   bool is_negative = station_temp[0] == '-';
+  bool have_dot = false;
   size_t it = 0;
   int result = 0;
   if (is_negative) {
@@ -36,12 +37,15 @@ inline int64_t parse_float_string(const std::string_view &station_temp) {
   }
   size_t size = station_temp.size();
   while (it < size) {
-    if (station_temp[it] != '.')
+    if (station_temp[it] != '.') {
       result = result * 10 + (station_temp[it] - '0');
+    } else {
+      have_dot = true;
+    }
     ++it;
   }
-  auto dot_pos = station_temp.find('.');
-  if (dot_pos == std::string_view::npos)
+
+  if (!have_dot)
     result = result * 10;
   return is_negative ? -result : result;
 }
