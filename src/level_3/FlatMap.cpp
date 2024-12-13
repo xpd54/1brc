@@ -25,15 +25,16 @@ Station_INT &FlatMap::operator[](const std::string_view &key) {
   return _values[index];
 }
 
-Station_INT *FlatMap::find(const std::string_view &key) {
+Station_INT &FlatMap::find(const std::string_view &key) {
   uint16_t index = get_index(key);
-  return &_values[index];
+  return _values[index];
 }
 
 std::vector<std::string_view> FlatMap::sorted_keys() {
   auto comp = [&](uint16_t left, uint16_t rigth) { return _keys[left] < _keys[rigth]; };
   std::sort(filled_indexes.begin(), filled_indexes.end(), comp);
   std::vector<std::string_view> sorted_keys;
+  sorted_keys.reserve(filled_indexes.size());
   for (const auto &index : filled_indexes) {
     sorted_keys.push_back(_keys[index]);
   }

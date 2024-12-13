@@ -11,7 +11,7 @@ public:
   FlatMap();
   std::pair<Station_INT *, bool> emplace(std::string_view key, const Station_INT &value);
   Station_INT &operator[](const std::string_view &key);
-  Station_INT *find(const std::string_view &key);
+  Station_INT &find(const std::string_view &key);
   std::vector<std::string_view> sorted_keys();
   size_t size() const;
   void reserve(size_t size);
