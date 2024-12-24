@@ -30,7 +30,7 @@
 inline int64_t parse_float_string(const std::string_view &station_temp) {
   bool is_negative = station_temp[0] == '-';
   size_t it = 0;
-  int result = 0;
+  int64_t result = 0;
   if (is_negative) {
     it = 1;
   }

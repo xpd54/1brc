@@ -97,7 +97,7 @@ void print_out_output(std::ostream &output_stream, custom_unorder_map &station_m
     output_stream << std::exchange(first_delimiter, ", ");
     output_stream << name << '=';
     output_stream << (value.minimum_temp / 10.0) << '/';
-    output_stream << (value.sum_of_temp / (value.number_of_record * 10.0)) << '/';
+    output_stream << (value.sum_of_temp / 10.0) / value.number_of_record << '/';
     output_stream << (value.maximum_temp / 10.0);
   }
   output_stream << '}';

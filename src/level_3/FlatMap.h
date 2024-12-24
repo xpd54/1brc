@@ -16,9 +16,9 @@ public:
   size_t size() const;
   void reserve(size_t size);
 
-  inline size_t count(const std::string_view &key) {
+  inline bool count(const std::string_view &key) {
     uint16_t index = get_index(key);
-    return _keys[index].empty() ? 0 : 1;
+    return !_keys[index].empty();
   }
 
 private:
