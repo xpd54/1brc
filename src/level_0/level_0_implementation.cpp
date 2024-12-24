@@ -16,9 +16,9 @@
 
 /*
  * Total run time
- * Number Of station:- 9671
- * Time Taken in millisecond :- 998237ms
- * Time Taken in second :- 998s
+ * Number Of station:- 413
+ * Time Taken in millisecond :- 561356ms
+ * Time Taken in second :- 561s
  */
 
 std::map<std::string, Station> create_map_with_file(std::ifstream &input_file_stream) {
