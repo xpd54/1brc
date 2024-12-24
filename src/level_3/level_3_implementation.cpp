@@ -29,24 +29,18 @@
  */
 inline int64_t parse_float_string(const std::string_view &station_temp) {
   bool is_negative = station_temp[0] == '-';
-  bool have_dot = false;
   size_t it = 0;
-  int result = 0;
+  int64_t result = 0;
   if (is_negative) {
-    it = 1;
+    ++it;
   }
   size_t size = station_temp.size();
   while (it < size) {
     if (station_temp[it] != '.') {
       result = result * 10 + (station_temp[it] - '0');
-    } else {
-      have_dot = true;
     }
     ++it;
   }
-
-  if (!have_dot)
-    result = result * 10;
   return is_negative ? -result : result;
 }
 
@@ -75,10 +69,10 @@ void create_map_with_file(const std::string_view &input_file_view, custom_unorde
     }
 
     auto it = station_map.find(station_name);
-    it.sum_of_temp += station_temp;
-    it.number_of_record++;
-    it.maximum_temp = std::max(it.maximum_temp, station_temp);
-    it.minimum_temp = std::min(it.minimum_temp, station_temp);
+    it->sum_of_temp += station_temp;
+    it->number_of_record++;
+    it->maximum_temp = std::max(it->maximum_temp, station_temp);
+    it->minimum_temp = std::min(it->minimum_temp, station_temp);
   }
 }
 
