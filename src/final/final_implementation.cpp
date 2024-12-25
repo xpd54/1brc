@@ -2,6 +2,7 @@
 #include "MemoryMappedFile.h"
 #include "Station.h"
 #include "util.h"
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -11,7 +12,9 @@
 #include <string>
 #include <string_view>
 #include <thread>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 
 /* List of improvement from level_1
  * 1. Use constexper for parsing the float
@@ -72,15 +75,20 @@ void create_map_with_file(const std::string_view &input_file_view, custom_unorde
  * ...}
  * <min>/<avrage>/<max>
  */
-void print_out_output(std::ostream &output_stream, custom_unorder_map &station_map) {
-  station_map.sort_key_index();
+void print_out_output(std::ostream &output_stream, std::unordered_map<std::string, Station> &station_map) {
+  std::vector<std::string> station_list;
+  station_list.reserve(station_map.size());
+  for (auto &value : station_map) {
+    station_list.push_back(value.first);
+  }
+
+  std::sort(station_list.begin(), station_list.end());
   std::string first_delimiter = "";
   output_stream << std::setiosflags(output_stream.fixed | output_stream.showpoint) << std::setprecision(1);
 
   output_stream << '{';
-  for (auto &index : station_map.filled_indexes) {
-    auto &name = station_map._keys[index];
-    auto &value = station_map._values[index];
+  for (auto &name : station_list) {
+    auto &value = station_map[name];
     output_stream << std::exchange(first_delimiter, ", ");
     output_stream << name << '=';
     output_stream << (value.minimum_temp / 10.0) << '/';
@@ -90,7 +98,7 @@ void print_out_output(std::ostream &output_stream, custom_unorder_map &station_m
   output_stream << '}';
 }
 
-void process_section_array(MemoryMappedFile &file, size_t number_of_thread) {
+std::unordered_map<std::string, Station> process_section_array(MemoryMappedFile &file, size_t number_of_thread) {
   std::vector<std::thread> threads;
   threads.reserve(number_of_thread);
   std::vector<custom_unorder_map> map_array(number_of_thread);
@@ -110,6 +118,21 @@ void process_section_array(MemoryMappedFile &file, size_t number_of_thread) {
     if (thread.joinable())
       thread.join();
   // merge map_array into single map to print out
+  std::unordered_map<std::string, Station> merged_map;
+  for (auto &map : map_array) {
+    for (auto &index : map.filled_indexes) {
+      auto it = merged_map.find(map._keys[index]);
+      if (it != merged_map.end()) {
+        merged_map.insert_or_assign(map._keys[index], map._values[index]);
+      } else {
+        it->second.number_of_record += map._values[index].number_of_record;
+        it->second.sum_of_temp += map._values[index].sum_of_temp;
+        it->second.minimum_temp = std::min(it->second.minimum_temp, map._values[index].minimum_temp);
+        it->second.maximum_temp = std::max(it->second.maximum_temp, map._values[index].maximum_temp);
+      }
+    }
+  }
+  return merged_map;
 }
 
 /*Take input file name as an argument to test that, Use Sample
@@ -120,17 +143,18 @@ int main(int argc, char **argv) {
   auto start_time = std::chrono::high_resolution_clock::now();
 
   MemoryMappedFile file(argv[1]);
-  std::string_view measurement_view = file.fileArray();
+  // std::string_view measurement_view = file.fileArray();
 
-  custom_unorder_map measurement_map;
-  measurement_map.reserve(1000);
-  create_map_with_file(measurement_view, measurement_map);
+  // custom_unorder_map measurement_map;
+  // measurement_map.reserve(1000);
+  std::unordered_map<std::string, Station> merged_map = process_section_array(file, 8);
+  // create_map_with_file(measurement_view, measurement_map);
 
   /**/
-  print_out_output(std::cout, measurement_map);
+  print_out_output(std::cout, merged_map);
 
   /*---------------Print Time Load---------------*/
-  std::cout << '\n' << "Number Of station:- " << measurement_map.size() << '\n';
+  std::cout << '\n' << "Number Of station:- " << merged_map.size() << '\n';
   auto end_time = std::chrono::high_resolution_clock::now();
 
   std::cout << "Time Taken in millisecond :- "

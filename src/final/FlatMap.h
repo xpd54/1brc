@@ -32,7 +32,7 @@ private:
   }
 
 public:
-  std::array<std::string_view, UINT16_MAX + 1> _keys;
+  std::array<std::string, UINT16_MAX + 1> _keys;
   std::array<Station, UINT16_MAX + 1> _values;
   std::vector<uint16_t> filled_indexes;
 };
