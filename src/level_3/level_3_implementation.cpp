@@ -44,7 +44,7 @@ inline int64_t parse_float_string(const std::string_view &station_temp) {
   return is_negative ? -result : result;
 }
 
-// using custom_unorder_map = std::unordered_map<std::string_view, Station_INT, decltype(hash), std::equal_to<>>;
+// using custom_unorder_map = std::unordered_map<std::string_view, Station, decltype(hash), std::equal_to<>>;
 using custom_unorder_map = FlatMap;
 void create_map_with_file(const std::string_view &input_file_view, custom_unorder_map &station_map) {
   std::string_view station_name;
@@ -64,7 +64,7 @@ void create_map_with_file(const std::string_view &input_file_view, custom_unorde
     int64_t station_temp = parse_float_string(station_temp_string);
 
     if (!station_map.count(station_name)) {
-      station_map.emplace(station_name, Station_INT{station_temp, 1, station_temp, station_temp});
+      station_map.emplace(station_name, Station{station_temp, 1, station_temp, station_temp});
       continue;
     }
 
@@ -93,7 +93,7 @@ void print_out_output(std::ostream &output_stream, custom_unorder_map &station_m
   output_stream << std::setiosflags(output_stream.fixed | output_stream.showpoint) << std::setprecision(1);
   output_stream << '{';
   for (auto &name : station_names) {
-    Station_INT value = station_map[name];
+    Station value = station_map[name];
     output_stream << std::exchange(first_delimiter, ", ");
     output_stream << name << '=';
     output_stream << (value.minimum_temp / 10.0) << '/';

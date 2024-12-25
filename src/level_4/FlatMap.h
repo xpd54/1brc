@@ -9,9 +9,9 @@
 class FlatMap {
 public:
   FlatMap();
-  std::pair<Station_INT *, bool> emplace(std::string_view key, uint64_t hash, const Station_INT &value);
-  const Station_INT &get(const std::string_view &key, uint64_t hash);
-  Station_INT *find(const std::string_view &key, uint64_t hash);
+  std::pair<Station *, bool> emplace(std::string_view key, uint64_t hash, const Station &value);
+  const Station &get(const std::string_view &key, uint64_t hash);
+  Station *find(const std::string_view &key, uint64_t hash);
   std::vector<std::string_view> sorted_keys();
   size_t size() const;
   void reserve(size_t size);
@@ -34,6 +34,6 @@ private:
   }
 
   std::array<std::string_view, UINT16_MAX + 1> _keys;
-  std::array<Station_INT, UINT16_MAX + 1> _values;
+  std::array<Station, UINT16_MAX + 1> _values;
   std::vector<uint16_t> filled_indexes;
 };
