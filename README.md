@@ -1,4 +1,4 @@
-# 1brc (One Billion Row Challenge)
+# 1️⃣ 🐝 🏎️ (One Billion Row Challenge)
 
 **1bc** is exactly what it named after. There are 1 billion row of data given in following formate. (city name; Temparature);
 
