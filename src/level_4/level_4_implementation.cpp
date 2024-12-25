@@ -66,18 +66,15 @@ void create_map_with_file(const std::string_view &input_file_view, custom_unorde
  * ...}
  * <min>/<avrage>/<max>
  */
-void print_out_output(std::ostream &output_stream, custom_unorder_map &station_map,
-                      const std::hash<std::string_view> &hash) {
-  /* Station_map will have roughly 10000 entry so sorting and finding shouldn't implact performance*/
-  std::vector<std::string_view> station_names;
-  station_names = station_map.sorted_keys();
-
+void print_out_output(std::ostream &output_stream, custom_unorder_map &station_map) {
+  station_map.sort_key_index();
   std::string first_delimiter = "";
   output_stream << std::setiosflags(output_stream.fixed | output_stream.showpoint) << std::setprecision(1);
+
   output_stream << '{';
-  for (auto &name : station_names) {
-    uint16_t hash_16 = hash(name);
-    Station value = station_map.get(name, hash_16);
+  for (auto &index : station_map.filled_indexes) {
+    auto &name = station_map._keys[index];
+    auto &value = station_map._values[index];
     output_stream << std::exchange(first_delimiter, ", ");
     output_stream << name << '=';
     output_stream << (value.minimum_temp / 10.0) << '/';
@@ -101,7 +98,7 @@ int main(int argc, char **argv) {
   custom_unorder_map measurement_map;
   measurement_map.reserve(1000);
   create_map_with_file(measurement_view, measurement_map, hash_instance);
-  print_out_output(std::cout, measurement_map, hash_instance);
+  print_out_output(std::cout, measurement_map);
   std::cout << '\n' << "Number Of station:- " << measurement_map.size() << '\n';
   auto end_time = std::chrono::high_resolution_clock::now();
 

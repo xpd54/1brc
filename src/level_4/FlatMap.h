@@ -10,9 +10,8 @@ class FlatMap {
 public:
   FlatMap();
   void insert(std::string_view key, uint16_t &hash, const Station &value);
-  const Station &get(const std::string_view &key, uint16_t &hash);
   Station *find(const std::string_view &key, uint16_t &hash);
-  std::vector<std::string_view> sorted_keys();
+  void sort_key_index();
   size_t size() const;
   void reserve(size_t size);
 
@@ -32,6 +31,7 @@ private:
     return index;
   }
 
+public:
   std::array<std::string_view, UINT16_MAX + 1> _keys;
   std::array<Station, UINT16_MAX + 1> _values;
   std::vector<uint16_t> filled_indexes;

@@ -14,25 +14,14 @@ void FlatMap::insert(std::string_view key, uint16_t &hash, const Station &value)
   _values[index] = value;
 }
 
-const Station &FlatMap::get(const std::string_view &key, uint16_t &hash) {
-  uint16_t index = get_index(key, hash);
-  return _values[index];
-}
-
 Station *FlatMap::find(const std::string_view &key, uint16_t &hash) {
   uint16_t index = get_index(key, hash);
   return &_values[index];
 }
 
-std::vector<std::string_view> FlatMap::sorted_keys() {
+void FlatMap::sort_key_index() {
   auto comp = [&](uint16_t left, uint16_t rigth) { return _keys[left] < _keys[rigth]; };
   std::sort(filled_indexes.begin(), filled_indexes.end(), comp);
-  std::vector<std::string_view> sorted_keys;
-  sorted_keys.reserve(filled_indexes.size());
-  for (const auto &index : filled_indexes) {
-    sorted_keys.push_back(_keys[index]);
-  }
-  return sorted_keys;
 }
 
 size_t FlatMap::size() const { return filled_indexes.size(); }
