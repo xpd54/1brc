@@ -1,12 +1,9 @@
-#include "../Station.h"
 #include "FlatMap.h"
 #include "MemoryMappedFile.h"
-#include <algorithm>
-#include <array>
+#include "Station.h"
+#include "util.h"
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
-#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <ostream>
@@ -26,75 +23,38 @@
  * Time Taken in second :- 165s
  */
 
-/*Get pre calculated table so don't have to run on if condition for parsing the float string*/
-constexpr std::array<std::array<int16_t, 2>, 256> parse_table() {
-  // ASCII holds char from 0 to 255
-  std::array<std::array<int16_t, 2>, 256> table{};
-  for (size_t i = 0; i < 256; ++i) {
-    if (i >= '0' && i <= '9') {
-      table[i][0] = 10;
-      table[i][1] = i - '0';
-    } else {
-      table[i][0] = 1;
-      table[i][1] = 0;
-    }
-  }
-  return table;
-}
-
-static constexpr std::array<std::array<int16_t, 2>, 256> parse_t = parse_table();
-
-/*Treat float string as int. as std::stof is slow downs alot.
- * benchmark
- * BM_STOI                 85.4 ns         66.2 ns     11137275
- * BM_lambda               17.6 ns         17.5 ns     38171685  (float parsing)
- */
-inline int64_t parse_float_string(const std::string_view &station_temp) {
-  bool is_negative = station_temp[0] == '-';
-  size_t it = 0;
-  int64_t result = 0;
-  size_t size = station_temp.size();
-  while (it < size) {
-    result *= parse_t[station_temp[it]][0];
-    result += parse_t[station_temp[it]][1];
-    ++it;
-  }
-  return is_negative ? -result : result;
-}
-
 // using custom_unorder_map = std::unordered_map<std::string_view, Station_INT, decltype(hash), std::equal_to<>>;
 using custom_unorder_map = FlatMap;
 void create_map_with_file(const std::string_view &input_file_view, custom_unorder_map &station_map,
                           const std::hash<std::string_view> &hash) {
-  std::string_view station_name;
-  std::string_view station_temp_string;
   uint64_t size = input_file_view.size();
   uint64_t start = 0;
   uint64_t found = input_file_view.size();
   while (start < size) {
+    Station_Data station;
     found = input_file_view.find(';', start);
-    station_name = input_file_view.substr(start, found - start);
-    auto name_hash = hash(station_name);
+    station.station_name = input_file_view.substr(start, found - start);
+    station.hash = hash(station.station_name);
     start = found + 1;
 
     found = input_file_view.find('\n', start);
-    station_temp_string = input_file_view.substr(start, found - start);
+    station.station_temp_value = parse_float_string(input_file_view.substr(start, found - start));
     start = found + 1;
-
-    int64_t station_temp = parse_float_string(station_temp_string);
-
-    if (!station_map.count(station_name, name_hash)) {
-      station_map.emplace(station_name, name_hash, Station_INT{station_temp, 1, station_temp, station_temp});
+    if (!station_map.count(station.station_name, station.hash)) {
+      station_map.emplace(
+          station.station_name, station.hash,
+          Station_INT{station.station_temp_value, 1, station.station_temp_value, station.station_temp_value});
       continue;
     }
 
-    auto it = station_map.find(station_name, name_hash);
-    it->sum_of_temp += station_temp;
+    auto it = station_map.find(station.station_name, station.hash);
+    it->sum_of_temp += station.station_temp_value;
     it->number_of_record++;
-    if (it->minimum_temp > station_temp)
-      it->minimum_temp = station_temp;
-    else if (it->maximum_temp < station_temp)
-      it->maximum_temp = station_temp;
+
+    if (it->minimum_temp > station.station_temp_value)
+      it->minimum_temp = station.station_temp_value;
+    else if (it->maximum_temp < station.station_temp_value)
+      it->maximum_temp = station.station_temp_value;
   }
 }
 

@@ -1,6 +1,6 @@
 #pragma once
 /*Flat map which uses Array and vector to keep track of keys and value rather than Tree. */
-#include "../Station.h"
+#include "Station.h"
 #include <array>
 #include <cstddef>
 #include <cstdint>
