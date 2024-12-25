@@ -6,26 +6,20 @@
 #include <string_view>
 FlatMap::FlatMap() : _keys{}, _values{}, filled_indexes{} {}
 
-std::pair<Station *, bool> FlatMap::emplace(std::string_view key, uint64_t hash, const Station &value) {
+void FlatMap::insert(std::string_view key, uint16_t &hash, const Station &value) {
   // check if there is a key already there if no insert
   uint16_t index = get_index(key, hash);
-  if (_keys[index].empty()) {
-    filled_indexes.push_back(index);
-    _keys[index] = key;
-    _values[index] = value;
-    return {&_values[index], true};
-  }
-
-  // if there is a key return the value at that index
-  return {&_values[index], false};
+  filled_indexes.push_back(index);
+  _keys[index] = key;
+  _values[index] = value;
 }
 
-const Station &FlatMap::get(const std::string_view &key, uint64_t hash) {
+const Station &FlatMap::get(const std::string_view &key, uint16_t &hash) {
   uint16_t index = get_index(key, hash);
   return _values[index];
 }
 
-Station *FlatMap::find(const std::string_view &key, uint64_t hash) {
+Station *FlatMap::find(const std::string_view &key, uint16_t &hash) {
   uint16_t index = get_index(key, hash);
   return &_values[index];
 }

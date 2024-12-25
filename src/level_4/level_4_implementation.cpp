@@ -23,7 +23,6 @@
  * Time Taken in second :- 165s
  */
 
-// using custom_unorder_map = std::unordered_map<std::string_view, Station, decltype(hash), std::equal_to<>>;
 using custom_unorder_map = FlatMap;
 void create_map_with_file(const std::string_view &input_file_view, custom_unorder_map &station_map,
                           const std::hash<std::string_view> &hash) {
@@ -33,15 +32,16 @@ void create_map_with_file(const std::string_view &input_file_view, custom_unorde
   while (start < size) {
     Station_Data station;
     found = input_file_view.find(';', start);
+
     station.station_name = input_file_view.substr(start, found - start);
-    station.hash = hash(station.station_name);
+    station.hash = static_cast<uint16_t>(hash(station.station_name));
     start = found + 1;
 
     found = input_file_view.find('\n', start);
     station.station_temp_value = parse_float_string(input_file_view.substr(start, found - start));
     start = found + 1;
     if (!station_map.count(station.station_name, station.hash)) {
-      station_map.emplace(
+      station_map.insert(
           station.station_name, station.hash,
           Station{station.station_temp_value, 1, station.station_temp_value, station.station_temp_value});
       continue;
@@ -76,7 +76,8 @@ void print_out_output(std::ostream &output_stream, custom_unorder_map &station_m
   output_stream << std::setiosflags(output_stream.fixed | output_stream.showpoint) << std::setprecision(1);
   output_stream << '{';
   for (auto &name : station_names) {
-    Station value = station_map.get(name, hash(name));
+    uint16_t hash_16 = hash(name);
+    Station value = station_map.get(name, hash_16);
     output_stream << std::exchange(first_delimiter, ", ");
     output_stream << name << '=';
     output_stream << (value.minimum_temp / 10.0) << '/';
