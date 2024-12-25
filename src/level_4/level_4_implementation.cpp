@@ -6,6 +6,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <ostream>
@@ -26,22 +27,22 @@
  */
 
 /*Get pre calculated table so don't have to run on if condition for parsing the float string*/
-constexpr std::array<std::pair<int16_t, int16_t>, 256> parse_table() {
+constexpr std::array<std::array<int16_t, 2>, 256> parse_table() {
   // ASCII holds char from 0 to 255
-  std::array<std::pair<int16_t, int16_t>, 256> table{};
+  std::array<std::array<int16_t, 2>, 256> table{};
   for (size_t i = 0; i < 256; ++i) {
     if (i >= '0' && i <= '9') {
-      table[i].first = 10;
-      table[i].second = i - '0';
+      table[i][0] = 10;
+      table[i][1] = i - '0';
     } else {
-      table[i].first = 1;
-      table[i].second = 0;
+      table[i][0] = 1;
+      table[i][1] = 0;
     }
   }
   return table;
 }
 
-static constexpr std::array<std::pair<int16_t, int16_t>, 256> parse_t = parse_table();
+static constexpr std::array<std::array<int16_t, 2>, 256> parse_t = parse_table();
 
 /*Treat float string as int. as std::stof is slow downs alot.
  * benchmark
@@ -54,8 +55,8 @@ inline int64_t parse_float_string(const std::string_view &station_temp) {
   int64_t result = 0;
   size_t size = station_temp.size();
   while (it < size) {
-    result *= parse_t[station_temp[it]].first;
-    result += parse_t[station_temp[it]].second;
+    result *= parse_t[station_temp[it]][0];
+    result += parse_t[station_temp[it]][1];
     ++it;
   }
   return is_negative ? -result : result;
@@ -63,7 +64,8 @@ inline int64_t parse_float_string(const std::string_view &station_temp) {
 
 // using custom_unorder_map = std::unordered_map<std::string_view, Station_INT, decltype(hash), std::equal_to<>>;
 using custom_unorder_map = FlatMap;
-void create_map_with_file(const std::string_view &input_file_view, custom_unorder_map &station_map) {
+void create_map_with_file(const std::string_view &input_file_view, custom_unorder_map &station_map,
+                          const std::hash<std::string_view> &hash) {
   std::string_view station_name;
   std::string_view station_temp_string;
   uint64_t size = input_file_view.size();
@@ -72,6 +74,7 @@ void create_map_with_file(const std::string_view &input_file_view, custom_unorde
   while (start < size) {
     found = input_file_view.find(';', start);
     station_name = input_file_view.substr(start, found - start);
+    auto name_hash = hash(station_name);
     start = found + 1;
 
     found = input_file_view.find('\n', start);
@@ -80,16 +83,18 @@ void create_map_with_file(const std::string_view &input_file_view, custom_unorde
 
     int64_t station_temp = parse_float_string(station_temp_string);
 
-    if (!station_map.count(station_name)) {
-      station_map.emplace(station_name, Station_INT{station_temp, 1, station_temp, station_temp});
+    if (!station_map.count(station_name, name_hash)) {
+      station_map.emplace(station_name, name_hash, Station_INT{station_temp, 1, station_temp, station_temp});
       continue;
     }
 
-    auto it = station_map.find(station_name);
+    auto it = station_map.find(station_name, name_hash);
     it->sum_of_temp += station_temp;
     it->number_of_record++;
-    it->maximum_temp = std::max(it->maximum_temp, station_temp);
-    it->minimum_temp = std::min(it->minimum_temp, station_temp);
+    if (it->minimum_temp > station_temp)
+      it->minimum_temp = station_temp;
+    else if (it->maximum_temp < station_temp)
+      it->maximum_temp = station_temp;
   }
 }
 
@@ -101,7 +106,8 @@ void create_map_with_file(const std::string_view &input_file_view, custom_unorde
  * ...}
  * <min>/<avrage>/<max>
  */
-void print_out_output(std::ostream &output_stream, custom_unorder_map &station_map) {
+void print_out_output(std::ostream &output_stream, custom_unorder_map &station_map,
+                      const std::hash<std::string_view> &hash) {
   /* Station_map will have roughly 10000 entry so sorting and finding shouldn't implact performance*/
   std::vector<std::string_view> station_names;
   station_names = station_map.sorted_keys();
@@ -110,7 +116,7 @@ void print_out_output(std::ostream &output_stream, custom_unorder_map &station_m
   output_stream << std::setiosflags(output_stream.fixed | output_stream.showpoint) << std::setprecision(1);
   output_stream << '{';
   for (auto &name : station_names) {
-    Station_INT value = station_map[name];
+    Station_INT value = station_map.get(name, hash(name));
     output_stream << std::exchange(first_delimiter, ", ");
     output_stream << name << '=';
     output_stream << (value.minimum_temp / 10.0) << '/';
@@ -125,16 +131,16 @@ void print_out_output(std::ostream &output_stream, custom_unorder_map &station_m
  * input/main.cpp which takes 4-5 min*/
 
 int main(int argc, char **argv) {
-
+  std::hash<std::string_view> hash_instance;
   auto start_time = std::chrono::high_resolution_clock::now();
 
   MemoryMappedFile file(argv[1]);
   std::string_view measurement_view = file.fileArray();
 
   custom_unorder_map measurement_map;
-  measurement_map.reserve(10000);
-  create_map_with_file(measurement_view, measurement_map);
-  print_out_output(std::cout, measurement_map);
+  measurement_map.reserve(1000);
+  create_map_with_file(measurement_view, measurement_map, hash_instance);
+  print_out_output(std::cout, measurement_map, hash_instance);
   std::cout << '\n' << "Number Of station:- " << measurement_map.size() << '\n';
   auto end_time = std::chrono::high_resolution_clock::now();
 
