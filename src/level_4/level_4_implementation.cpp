@@ -19,27 +19,31 @@
 /*
  * Total run time
  * Number Of station:- 413
- * Time Taken in millisecond :- 165393ms
- * Time Taken in second :- 165s
+ * Time Taken in millisecond :- 157615ms
+ * Time Taken in second :- 157s
  */
 
 using custom_unorder_map = FlatMap;
-void create_map_with_file(const std::string_view &input_file_view, custom_unorder_map &station_map,
-                          const std::hash<std::string_view> &hash) {
+void create_map_with_file(const std::string_view &input_file_view, custom_unorder_map &station_map) {
   uint64_t size = input_file_view.size();
   uint64_t start = 0;
-  uint64_t found = input_file_view.size();
+  uint64_t found = 0;
   while (start < size) {
     Station_Data station;
-    found = input_file_view.find(';', start);
-
+    station.hash = 0;
+    /*We are accesing char already, Would like to get simple hash rather than uint64_t version from hash lib*/
+    while (input_file_view[found] != ';') {
+      station.hash = station.hash * 7 + input_file_view[found];
+      ++found;
+    }
     station.station_name = input_file_view.substr(start, found - start);
-    station.hash = static_cast<uint16_t>(hash(station.station_name));
     start = found + 1;
 
     found = input_file_view.find('\n', start);
     station.station_temp_value = parse_float_string(input_file_view.substr(start, found - start));
     start = found + 1;
+    /*Move found it by one*/
+    ++found;
     if (!station_map.count(station.station_name, station.hash)) {
       station_map.insert(
           station.station_name, station.hash,
@@ -89,7 +93,6 @@ void print_out_output(std::ostream &output_stream, custom_unorder_map &station_m
  * input/main.cpp which takes 4-5 min*/
 
 int main(int argc, char **argv) {
-  std::hash<std::string_view> hash_instance;
   auto start_time = std::chrono::high_resolution_clock::now();
 
   MemoryMappedFile file(argv[1]);
@@ -97,7 +100,7 @@ int main(int argc, char **argv) {
 
   custom_unorder_map measurement_map;
   measurement_map.reserve(1000);
-  create_map_with_file(measurement_view, measurement_map, hash_instance);
+  create_map_with_file(measurement_view, measurement_map);
 
   /**/
   print_out_output(std::cout, measurement_map);
