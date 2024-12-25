@@ -98,7 +98,11 @@ int main(int argc, char **argv) {
   custom_unorder_map measurement_map;
   measurement_map.reserve(1000);
   create_map_with_file(measurement_view, measurement_map, hash_instance);
+
+  /**/
   print_out_output(std::cout, measurement_map);
+
+  /*---------------Print Time Load---------------*/
   std::cout << '\n' << "Number Of station:- " << measurement_map.size() << '\n';
   auto end_time = std::chrono::high_resolution_clock::now();
 
