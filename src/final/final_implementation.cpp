@@ -3,12 +3,14 @@
 #include "Station.h"
 #include "util.h"
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <iomanip>
 #include <iostream>
 #include <ostream>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <utility>
 
 /* List of improvement from level_1
@@ -86,6 +88,28 @@ void print_out_output(std::ostream &output_stream, custom_unorder_map &station_m
     output_stream << (value.maximum_temp / 10.0);
   }
   output_stream << '}';
+}
+
+void process_section_array(MemoryMappedFile &file, size_t number_of_thread) {
+  std::vector<std::thread> threads;
+  threads.reserve(number_of_thread);
+  std::vector<custom_unorder_map> map_array(number_of_thread);
+  map_array.reserve(number_of_thread);
+
+  for (size_t it = 0; it < number_of_thread; ++it) {
+    auto section = file.next_section_array();
+    threads.push_back(std::thread([&, i = it]() {
+      while (!section.empty()) {
+        create_map_with_file(section, map_array[i]);
+        section = file.next_section_array();
+      }
+    }));
+  }
+
+  for (auto &thread : threads)
+    if (thread.joinable())
+      thread.join();
+  // merge map_array into single map to print out
 }
 
 /*Take input file name as an argument to test that, Use Sample
