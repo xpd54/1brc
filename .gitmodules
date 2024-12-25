@@ -1,0 +1,3 @@
+[submodule "input/1brc"]
+	path = input/1brc
+	url = https://github.com/gunnarmorling/1brc.git
