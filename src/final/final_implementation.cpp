@@ -106,10 +106,10 @@ std::unordered_map<std::string, Station> process_section_array(MemoryMappedFile 
 
   for (size_t it = 0; it < number_of_thread; ++it) {
     threads.push_back(std::thread([&, i = it]() {
-      auto section = file.next_section_array(1);
+      auto section = file.next_section_array();
       while (section.size()) {
         create_map_with_file(section, map_array[i]);
-        section = file.next_section_array(1);
+        section = file.next_section_array();
       }
     }));
   }
@@ -142,12 +142,7 @@ int main(int argc, char **argv) {
   auto start_time = std::chrono::high_resolution_clock::now();
 
   MemoryMappedFile file(argv[1]);
-  // std::string_view measurement_view = file.fileArray();
-
-  // custom_unorder_map measurement_map;
-  // measurement_map.reserve(1000);
-  std::unordered_map<std::string, Station> merged_map = process_section_array(file, 8);
-  // create_map_with_file(measurement_view, measurement_map);
+  std::unordered_map<std::string, Station> merged_map = process_section_array(file, 24);
 
   /**/
   print_out_output(std::cout, merged_map);
