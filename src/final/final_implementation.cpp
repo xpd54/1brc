@@ -22,10 +22,10 @@
  */
 
 /*
- * Total run time
+ * Total run time 32, 512
  * Number Of station:- 413
- * Time Taken in millisecond :- 157615ms
- * Time Taken in second :- 157s
+ * Time Taken in millisecond :- 29764ms
+ * Time Taken in second :- 29s
  */
 
 using custom_unorder_map = FlatMap;
@@ -98,7 +98,8 @@ void print_out_output(std::ostream &output_stream, std::unordered_map<std::strin
   output_stream << '}';
 }
 
-std::unordered_map<std::string, Station> process_section_array(MemoryMappedFile &file, size_t number_of_thread) {
+std::unordered_map<std::string, Station> process_section_array(MemoryMappedFile &file, size_t number_of_thread,
+                                                               size_t section_size) {
   std::vector<std::thread> threads;
   threads.reserve(number_of_thread);
   std::vector<custom_unorder_map> map_array(number_of_thread);
@@ -106,10 +107,10 @@ std::unordered_map<std::string, Station> process_section_array(MemoryMappedFile 
 
   for (size_t it = 0; it < number_of_thread; ++it) {
     threads.push_back(std::thread([&, i = it]() {
-      auto section = file.next_section_array();
+      auto section = file.next_section_array(section_size);
       while (section.size()) {
         create_map_with_file(section, map_array[i]);
-        section = file.next_section_array();
+        section = file.next_section_array(section_size);
       }
     }));
   }
@@ -140,15 +141,18 @@ std::unordered_map<std::string, Station> process_section_array(MemoryMappedFile 
 
 int main(int argc, char **argv) {
   auto start_time = std::chrono::high_resolution_clock::now();
+  size_t thread_count = std::stoi(argv[2]);
+  size_t section_size = std::stoi(argv[3]);
 
   MemoryMappedFile file(argv[1]);
-  std::unordered_map<std::string, Station> merged_map = process_section_array(file, 24);
-
+  std::unordered_map<std::string, Station> merged_map = process_section_array(file, thread_count, section_size);
   /**/
   print_out_output(std::cout, merged_map);
 
   /*---------------Print Time Load---------------*/
   std::cout << '\n' << "Number Of station:- " << merged_map.size() << '\n';
+  std::cout << "Number of Thread :- " << thread_count << '\n';
+  std::cout << "Section Size :-" << section_size << '\n';
   auto end_time = std::chrono::high_resolution_clock::now();
 
   std::cout << "Time Taken in millisecond :- "
