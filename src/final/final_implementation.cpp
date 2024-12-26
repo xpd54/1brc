@@ -75,28 +75,6 @@ void create_map_with_file(const std::string_view &input_file_view, custom_unorde
  * ...}
  * <min>/<avrage>/<max>
  */
-void print_out_output(std::ostream &output_stream, std::unordered_map<std::string, Station> &station_map) {
-  std::vector<std::string> station_list;
-  station_list.reserve(station_map.size());
-  for (auto &value : station_map) {
-    station_list.push_back(value.first);
-  }
-
-  std::sort(station_list.begin(), station_list.end());
-  std::string first_delimiter = "";
-  output_stream << std::setiosflags(output_stream.fixed | output_stream.showpoint) << std::setprecision(1);
-
-  output_stream << '{';
-  for (auto &name : station_list) {
-    auto &value = station_map[name];
-    output_stream << std::exchange(first_delimiter, ", ");
-    output_stream << name << '=';
-    output_stream << (value.minimum_temp / 10.0) << '/';
-    output_stream << (value.sum_of_temp / 10.0) / value.number_of_record << '/';
-    output_stream << (value.maximum_temp / 10.0);
-  }
-  output_stream << '}';
-}
 
 std::unordered_map<std::string, Station> process_section_array(MemoryMappedFile &file, size_t number_of_thread,
                                                                size_t section_size) {
@@ -135,9 +113,28 @@ std::unordered_map<std::string, Station> process_section_array(MemoryMappedFile 
   return merged_map;
 }
 
-/*Take input file name as an argument to test that, Use Sample
- * (input/measurement_100000.txt). Original 1B row can be generated with
- * input/main.cpp which takes 4-5 min*/
+void print_out_output(std::ostream &output_stream, std::unordered_map<std::string, Station> &station_map) {
+  std::vector<std::string> station_list;
+  station_list.reserve(station_map.size());
+  for (auto &value : station_map) {
+    station_list.push_back(value.first);
+  }
+
+  std::sort(station_list.begin(), station_list.end());
+  std::string first_delimiter = "";
+  output_stream << std::setiosflags(output_stream.fixed | output_stream.showpoint) << std::setprecision(1);
+
+  output_stream << '{';
+  for (auto &name : station_list) {
+    auto &value = station_map[name];
+    output_stream << std::exchange(first_delimiter, ", ");
+    output_stream << name << '=';
+    output_stream << (value.minimum_temp / 10.0) << '/';
+    output_stream << (value.sum_of_temp / 10.0) / value.number_of_record << '/';
+    output_stream << (value.maximum_temp / 10.0);
+  }
+  output_stream << '}';
+}
 
 int main(int argc, char **argv) {
   auto start_time = std::chrono::high_resolution_clock::now();
