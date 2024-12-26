@@ -11,8 +11,8 @@
 #include "Station.h"
 
 /* List of improvement from level_0
- * 1. Avoid making copy of station_map when returing from create_map_with_file and in print_out_output.
- * 2. Use map where emplace would be faster as no need to sort alphabitally (lexicographically)
+ * 1. Avoid making copy of station_map when returning from create_map_with_file and in print_out_output.
+ * 2. Use unordered_map where emplace would be faster as no need to sort alphabitally (lexicographically)
  */
 
 /*
