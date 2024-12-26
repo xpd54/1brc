@@ -105,24 +105,23 @@ std::unordered_map<std::string, Station> process_section_array(MemoryMappedFile 
   map_array.reserve(number_of_thread);
 
   for (size_t it = 0; it < number_of_thread; ++it) {
-    auto section = file.next_section_array();
     threads.push_back(std::thread([&, i = it]() {
-      while (!section.empty()) {
+      auto section = file.next_section_array(1);
+      while (section.size()) {
         create_map_with_file(section, map_array[i]);
-        section = file.next_section_array();
+        section = file.next_section_array(1);
       }
     }));
   }
 
   for (auto &thread : threads)
-    if (thread.joinable())
-      thread.join();
+    thread.join();
   // merge map_array into single map to print out
   std::unordered_map<std::string, Station> merged_map;
   for (auto &map : map_array) {
     for (auto &index : map.filled_indexes) {
       auto it = merged_map.find(map._keys[index]);
-      if (it != merged_map.end()) {
+      if (it == merged_map.end()) {
         merged_map.insert_or_assign(map._keys[index], map._values[index]);
       } else {
         it->second.number_of_record += map._values[index].number_of_record;
