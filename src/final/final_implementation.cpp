@@ -22,10 +22,12 @@
  */
 
 /*
- * Total run time 32, 512
+ * Total run time
  * Number Of station:- 413
- * Time Taken in millisecond :- 29764ms
- * Time Taken in second :- 29s
+ * Number of Thread :- 32
+ * Section Size :- 512
+ * Time Taken in millisecond :- 27440ms
+ * Time Taken in second :- 25s
  */
 
 using custom_unorder_map = FlatMap;
@@ -149,7 +151,7 @@ int main(int argc, char **argv) {
   /*---------------Print Time Load---------------*/
   std::cout << '\n' << "Number Of station:- " << merged_map.size() << '\n';
   std::cout << "Number of Thread :- " << thread_count << '\n';
-  std::cout << "Section Size :-" << section_size << '\n';
+  std::cout << "Section Size :- " << section_size << '\n';
   auto end_time = std::chrono::high_resolution_clock::now();
 
   std::cout << "Time Taken in millisecond :- "
