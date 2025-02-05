@@ -20,7 +20,7 @@ Bulawayo;8.9;22.1;35.2
 Palembang;38.8;39.9;41.0
 ```
 
-More Details are at 1️⃣🐝🏎️[1BRC](https://1brc.dev/)
+More Details are at 1️⃣🐝🏎️[1BRC](https://github.com/gunnarmorling/1brc)
 
 ## Table of Contents
 
